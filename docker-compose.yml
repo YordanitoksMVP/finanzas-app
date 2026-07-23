@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  # Tu aplicación de Node.js
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+
+  # Tu base de datos (Ejemplo con MongoDB)
+  db:
+    image: mongo
+    ports:
+      - "27017:27017"

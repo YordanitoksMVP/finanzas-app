@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Finanzas Personales</title>
+    <style>
+        /* ============================================================
+           ESTILOS GENERALES
+           ============================================================ */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        h1 span { color: #667eea; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; color: #555; font-weight: 500; }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+        input:focus { outline: none; border-color: #667eea; }
+        button[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button[type="submit"]:hover { background: #5a67d8; }
+        .mensaje {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            display: none;
+        }
+        .mensaje.error { display: block; background: #fee; color: #c33; border: 1px solid #fcc; }
+        .mensaje.exito { display: block; background: #efe; color: #3c3; border: 1px solid #cfc; }
+        .registro-link { text-align: center; margin-top: 20px; color: #666; }
+        .registro-link a { color: #667eea; text-decoration: none; font-weight: bold; }
+        .registro-link a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💰 <span>Finanzas</span>Personales</h1>
+        
+        <!-- ============================================================
+             FORMULARIO DE LOGIN
+             ============================================================ -->
+        <form id="login-form">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="email" placeholder="tu@email.com" required>
+            </div>
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" id="password" placeholder="••••••••" required>
+            </div>
+            <button type="submit">Iniciar Sesión</button>
+        </form>
+        
+        <!-- ============================================================
+             MENSAJES DE RESPUESTA
+             ============================================================ -->
+        <div id="mensaje" class="mensaje"></div>
+        
+        <!-- ============================================================
+             ENLACE A REGISTRO
+             ============================================================ -->
+        <div class="registro-link">
+            ¿No tienes cuenta? <a href="registro.html">Regístrate aquí</a>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         LÓGICA DE LOGIN (JavaScript)
+         ============================================================ -->
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const mensajeDiv = document.getElementById('mensaje');
+            mensajeDiv.className = 'mensaje';
+            mensajeDiv.textContent = '';
+            mensajeDiv.style.display = 'none';
+
+            try {
+                // Enviar petición al servidor
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    // Guardar token y datos del usuario
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('usuario', JSON.stringify(data.usuario));
+                    
+                    mensajeDiv.className = 'mensaje exito';
+                    mensajeDiv.textContent = '✅ ¡Bienvenido! Redirigiendo...';
+                    mensajeDiv.style.display = 'block';
+                    
+                    // Redirigir al panel principal
+                    setTimeout(() => {
+                        window.location.href = 'sitio_web_finanas.html';
+                    }, 1500);
+                } else {
+                    mensajeDiv.className = 'mensaje error';
+                    mensajeDiv.textContent = '❌ ' + (data.error || 'Error al iniciar sesión');
+                    mensajeDiv.style.display = 'block';
+                }
+            } catch (error) {
+                mensajeDiv.className = 'mensaje error';
+                mensajeDiv.textContent = '❌ Error de conexión';
+                mensajeDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
