@@ -1,17 +1,24 @@
 version: '3.8'
+
 services:
-  # Tu aplicación de Node.js
+  mongodb:
+    image: mongo:4.4
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
   app:
     build: .
+    container_name: node-app
     ports:
       - "3000:3000"
     depends_on:
-      - db
+      - mongodb
     environment:
-      - DB_HOST=db
+      - MONGO_URL=mongodb://mongodb:27017/finanzas
+    working_dir: /app
 
-  # Tu base de datos (Ejemplo con MongoDB)
-  db:
-    image: mongo
-    ports:
-      - "27017:27017"
+volumes:
+  mongo-data:
